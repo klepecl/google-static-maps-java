@@ -15,7 +15,7 @@ public class MapsRequest {
 
     private ImageSize size;
     private LatLng center;
-    private int zoom;
+    private Integer zoom;
     private Integer scale;
     private Format format;
     private MapType maptype;
@@ -25,8 +25,13 @@ public class MapsRequest {
     public String url() {
         UrlBuilder ub = new UrlBuilder();
         ub.size(size);
-        ub.zoom(zoom);
 
+        if (markers.isEmpty()) {
+            Preconditions.checkState(zoom != null, "'zoom' is required when there are no markers");
+            Preconditions.checkState(center != null, "'center' is required when there are no markers");
+        }
+
+        Optional.ofNullable(zoom).ifPresent(ub::zoom);
         Optional.ofNullable(center).ifPresent(ub::center);
         Optional.ofNullable(scale).ifPresent(ub::scale);
         Optional.ofNullable(format).ifPresent(ub::format);
@@ -47,7 +52,7 @@ public class MapsRequest {
             sb.append("size=").append(size.toUrl());
         }
 
-        void zoom(int zoom) {
+        void zoom(Integer zoom) {
             Preconditions.checkState(zoom > 0);
             next();
             sb.append("zoom=").append(zoom);
